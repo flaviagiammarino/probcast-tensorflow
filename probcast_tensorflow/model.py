@@ -5,7 +5,8 @@ from tensorflow.keras.utils import timeseries_dataset_from_array
 from tensorflow.keras.optimizers import Adam
 pd.options.mode.chained_assignment = None
 
-from probcast_tensorflow.modules import generator, discriminator, generator_loss, discriminator_loss
+from probcast_tensorflow.modules import generator, discriminator
+from probcast_tensorflow.losses import generator_loss, discriminator_loss
 from probcast_tensorflow.plots import plot
 
 class ProbCast():

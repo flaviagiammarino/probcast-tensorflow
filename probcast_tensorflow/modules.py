@@ -1,7 +1,5 @@
-import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, GRU, Dense, Concatenate
-from tensorflow.keras.losses import MeanAbsoluteError, BinaryCrossentropy
 
 def generator(gru_units, dense_units, sequence_length, noise_dimension, model_dimension):
 
@@ -78,41 +76,3 @@ def discriminator(gru_units, dense_units, sequence_length, model_dimension):
     outputs = Dense(units=1)(outputs)
 
     return Model(inputs, outputs)
-
-
-def generator_loss(actual, predicted):
-
-    '''
-    Generator loss.
-
-    Parameters:
-    __________________________________
-    actual: tf.Tensor.
-        Actual values.
-
-    predicted: tf.Tensor.
-        Predicted values.
-    '''
-
-    L = MeanAbsoluteError()
-
-    return L(y_true=actual, y_pred=predicted)
-
-
-def discriminator_loss(actual, generated):
-
-    '''
-    Discriminator loss.
-
-    Parameters:
-    __________________________________
-    actual: tf.Tensor.
-        Actual sequences.
-
-    generated: tf.Tensor.
-        Generated sequences.
-    '''
-
-    L = BinaryCrossentropy(from_logits=True)
-
-    return L(y_true=tf.ones_like(actual), y_pred=actual) + L(y_true=tf.zeros_like(generated), y_pred=generated)
