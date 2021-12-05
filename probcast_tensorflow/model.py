@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.utils import timeseries_dataset_from_array
-from tensorflow.keras.layers import Reshape
 from tensorflow.keras.optimizers import Adam
 pd.options.mode.chained_assignment = None
 
@@ -176,7 +175,7 @@ class ProbCast():
 
                 # Generate the model predictions.
                 outputs = generator_model([inputs, noise])
-                outputs = Reshape(target_shape=(1, self.targets))(outputs)
+                outputs = tf.reshape(outputs, shape=(data.shape[0], 1, self.targets))
 
                 # Pass the actual sequence and the predicted sequence to the discriminator.
                 actual = discriminator_model(tf.concat([inputs, targets], axis=1))
