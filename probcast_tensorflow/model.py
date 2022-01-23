@@ -31,11 +31,11 @@ class ProbCast():
 
         Parameters:
         __________________________________
-        y: np.array
+        y: np.array.
             Target time series, array with shape (samples, targets) where samples is the length of the
             time series and targets is the number of target time series.
 
-        sequence_length: int
+        sequence_length: int.
             Number of past time steps to use as input.
 
         forecast_length: int.
@@ -229,7 +229,7 @@ class ProbCast():
 
         Returns:
         __________________________________
-        predictions: pd.DataFrame
+        predictions: pd.DataFrame.
             Data frame including the actual values of the time series and the predicted quantiles.
         '''
 
@@ -289,7 +289,7 @@ class ProbCast():
 
         Returns:
         __________________________________
-        forecasts: pd.DataFrame
+        forecasts: pd.DataFrame.
             Data frame including the actual values of the time series and the predicted quantiles.
         '''
 
@@ -340,7 +340,7 @@ class ProbCast():
 
         Returns:
         __________________________________
-        go.Figure
+        go.Figure.
         '''
 
         return plot(self.predictions, self.quantiles, self.targets)
@@ -352,7 +352,7 @@ class ProbCast():
 
         Returns:
         __________________________________
-        go.Figure
+        go.Figure.
         '''
 
         return plot(self.forecasts, self.quantiles, self.targets)

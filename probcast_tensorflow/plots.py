@@ -8,7 +8,7 @@ def plot(df, quantiles, targets):
 
     Parameters:
     __________________________________
-    df: pd.DataFrame
+    df: pd.DataFrame.
         Data frame with target time series and predicted quantiles.
 
     quantiles: np.array.
@@ -19,7 +19,7 @@ def plot(df, quantiles, targets):
 
     Returns:
     __________________________________
-    fig: go.Figure
+    fig: go.Figure.
         Line chart of target time series and predicted quantiles, one subplot for each target.
     '''
 

@@ -24,7 +24,7 @@ def generator(gru_units, dense_units, sequence_length, noise_dimension, model_di
         Number of time series.
     '''
 
-    # Input sequence.
+    # Inputs.
     inputs = Input(shape=(sequence_length, model_dimension))
 
     # GRU block.
@@ -63,7 +63,7 @@ def discriminator(gru_units, dense_units, sequence_length, model_dimension):
         Number of time series.
     '''
 
-    # Input sequence.
+    # Inputs.
     inputs = Input(shape=(sequence_length + 1, model_dimension))
 
     # GRU block.
