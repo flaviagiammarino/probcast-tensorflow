@@ -1,10 +1,14 @@
-## ProbCast TensorFlow
+# ProbCast TensorFlow
+
+![license](https://img.shields.io/github/license/flaviagiammarino/probcast-tensorflow)
+![languages](https://img.shields.io/github/languages/top/flaviagiammarino/probcast-tensorflow)
+
 TensorFlow implementation of multivariate time series forecasting model introduced in Koochali, A., Dengel, A.,
 & Ahmed, S. (2021). If You Like It, GAN It — Probabilistic Multivariate Times Series Forecast with GAN.
-In Engineering Proceedings (Vol. 5, No. 1, p. 40). Multidisciplinary Digital Publishing Institute.
+In *Engineering Proceedings* (Vol. 5, No. 1, p. 40). Multidisciplinary Digital Publishing Institute.
 [https://doi.org/10.3390/engproc2021005040](https://doi.org/10.3390/engproc2021005040).
 
-### Dependencies
+## Dependencies
 ```bash
 pandas==1.3.4
 numpy==1.19.5
@@ -12,7 +16,7 @@ tensorflow==2.7.0
 plotly==5.3.1
 kaleido==0.2.1
 ```
-### Usage
+## Usage
 ```python
 import numpy as np
 from probcast_tensorflow.model import ProbCast
