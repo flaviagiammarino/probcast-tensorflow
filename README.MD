@@ -6,7 +6,7 @@
 TensorFlow implementation of multivariate time series forecasting model introduced in Koochali, A., Dengel, A.,
 and Ahmed, S. (2021). If You Like It, GAN It — Probabilistic Multivariate Times Series Forecast with GAN.
 In *Engineering Proceedings* (Vol. 5, No. 1, p. 40). Multidisciplinary Digital Publishing Institute.
-[https://doi.org/10.3390/engproc2021005040](https://doi.org/10.3390/engproc2021005040).
+[arXiv:2005.01181](https://arxiv.org/abs/2005.01181).
 
 ## Dependencies
 ```bash
