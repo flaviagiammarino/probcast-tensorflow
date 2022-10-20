@@ -1,7 +1,9 @@
 # ProbCast TensorFlow
 
-![license](https://img.shields.io/github/license/flaviagiammarino/probcast-tensorflow)
-![languages](https://img.shields.io/github/languages/top/flaviagiammarino/probcast-tensorflow)
+![license](https://img.shields.io/github/license/flaviagiammarino/probcast-tensorflow?color=green)
+![languages](https://img.shields.io/github/languages/top/flaviagiammarino/probcast-tensorflow?color=blue)
+![stars](https://img.shields.io/github/stars/flaviagiammarino/probcast-tensorflow?color=yellow)
+![forks](https://img.shields.io/github/forks/flaviagiammarino/probcast-tensorflow?color=orange)
 
 TensorFlow implementation of multivariate time series forecasting model introduced in Koochali, A., Dengel, A.,
 and Ahmed, S. (2021). If You Like It, GAN It — Probabilistic Multivariate Times Series Forecast with GAN.
