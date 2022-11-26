@@ -1,5 +1,4 @@
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, GRU, Dense, Concatenate
+import tensorflow as tf
 
 def generator(gru_units, dense_units, sequence_length, noise_dimension, model_dimension):
 
@@ -23,24 +22,24 @@ def generator(gru_units, dense_units, sequence_length, noise_dimension, model_di
     model_dimension: int.
         Number of time series.
     '''
-
+    
     # Inputs.
-    inputs = Input(shape=(sequence_length, model_dimension))
+    inputs = tf.keras.layers.Input(shape=(sequence_length, model_dimension))
 
     # GRU block.
-    outputs = GRU(units=gru_units[0], return_sequences=False if len(gru_units) == 1 else True)(inputs)
+    outputs = tf.keras.layers.GRU(units=gru_units[0], return_sequences=False if len(gru_units) == 1 else True)(inputs)
     for i in range(1, len(gru_units)):
-        outputs = GRU(units=gru_units[i], return_sequences=True if i < len(gru_units) - 1 else False)(outputs)
+        outputs = tf.keras.layers.GRU(units=gru_units[i], return_sequences=True if i < len(gru_units) - 1 else False)(outputs)
 
     # Noise vector.
-    noise = Input(shape=noise_dimension)
-    outputs = Concatenate(axis=-1)([noise, outputs])
+    noise = tf.keras.layers.Input(shape=noise_dimension)
+    outputs = tf.keras.layers.Concatenate(axis=-1)([noise, outputs])
 
     # Dense layers.
-    outputs = Dense(units=dense_units)(outputs)
-    outputs = Dense(units=model_dimension)(outputs)
+    outputs = tf.keras.layers.Dense(units=dense_units)(outputs)
+    outputs = tf.keras.layers.Dense(units=model_dimension)(outputs)
 
-    return Model([inputs, noise], outputs)
+    return tf.keras.models.Model([inputs, noise], outputs)
 
 
 def discriminator(gru_units, dense_units, sequence_length, model_dimension):
@@ -64,15 +63,15 @@ def discriminator(gru_units, dense_units, sequence_length, model_dimension):
     '''
 
     # Inputs.
-    inputs = Input(shape=(sequence_length + 1, model_dimension))
+    inputs = tf.keras.layers.Input(shape=(sequence_length + 1, model_dimension))
 
     # GRU block.
-    outputs = GRU(units=gru_units[0], return_sequences=False if len(gru_units) == 1 else True)(inputs)
+    outputs = tf.keras.layers.GRU(units=gru_units[0], return_sequences=False if len(gru_units) == 1 else True)(inputs)
     for i in range(1, len(gru_units)):
-        outputs = GRU(units=gru_units[i], return_sequences=True if i < len(gru_units) - 1 else False)(outputs)
+        outputs = tf.keras.layers.GRU(units=gru_units[i], return_sequences=True if i < len(gru_units) - 1 else False)(outputs)
 
     # Dense layers.
-    outputs = Dense(units=dense_units)(outputs)
-    outputs = Dense(units=1)(outputs)
+    outputs = tf.keras.layers.Dense(units=dense_units)(outputs)
+    outputs = tf.keras.layers.Dense(units=1, activation='sigmoid')(outputs)
 
-    return Model(inputs, outputs)
+    return tf.keras.models.Model(inputs, outputs)

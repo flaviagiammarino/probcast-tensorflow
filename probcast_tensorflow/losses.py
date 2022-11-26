@@ -1,39 +1,21 @@
 import tensorflow as tf
-from tensorflow.keras.losses import MeanAbsoluteError, BinaryCrossentropy
 
-def generator_loss(actual, predicted):
-
+def generator_loss(targets, predictions, prob_predictions):
     '''
     Generator loss.
-
-    Parameters:
-    __________________________________
-    actual: tf.Tensor.
-        Actual values.
-
-    predicted: tf.Tensor.
-        Predicted values.
     '''
+    
+    L1 = tf.keras.losses.MeanAbsoluteError()
+    L2 = tf.keras.losses.BinaryCrossentropy()
+    
+    return 0.99 * L1(y_true=targets, y_pred=predictions) + 0.01 * L2(y_true=tf.ones_like(prob_predictions), y_pred=prob_predictions)
 
-    L = MeanAbsoluteError()
 
-    return L(y_true=actual, y_pred=predicted)
-
-
-def discriminator_loss(actual, predicted):
-
+def discriminator_loss(prob_targets, prob_predictions):
     '''
     Discriminator loss.
-
-    Parameters:
-    __________________________________
-    actual: tf.Tensor.
-        Actual sequences.
-
-    predicted: tf.Tensor.
-        Predicted sequences.
     '''
-
-    L = BinaryCrossentropy(from_logits=True)
-
-    return L(y_true=tf.ones_like(actual), y_pred=actual) + L(y_true=tf.zeros_like(predicted), y_pred=predicted)
+    
+    L = tf.keras.losses.BinaryCrossentropy()
+    
+    return L(y_true=tf.ones_like(prob_targets), y_pred=prob_targets) + L(y_true=tf.zeros_like(prob_predictions), y_pred=prob_predictions)

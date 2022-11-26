@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.utils import timeseries_dataset_from_array
-from tensorflow.keras.optimizers import Adam
 pd.options.mode.chained_assignment = None
 
 from probcast_tensorflow.modules import generator, discriminator
@@ -64,30 +62,6 @@ class ProbCast():
         noise_dispersion: float.
             Standard deviation of the noise vector concatenated to the outputs of the GRU block in the generator.
         '''
-
-        if type(y) != np.ndarray:
-            raise ValueError('The target time series must be provided as a numpy array.')
-
-        elif np.isnan(y).sum() != 0:
-            raise ValueError('The target time series cannot contain missing values.')
-
-        if len(y.shape) > 2:
-            raise ValueError('The targets array cannot have more than 2 dimensions.')
-
-        elif len(y.shape) == 1:
-            y = np.expand_dims(y, axis=1)
-
-        if type(generator_gru_units) != list:
-            raise ValueError('The generator GRU units must be provided as a list.')
-
-        if type(discriminator_gru_units) != list:
-            raise ValueError('The discriminator GRU units must be provided as a list.')
-
-        if type(quantiles) != list:
-            raise ValueError('The quantiles must be provided as a list.')
-
-        elif len(quantiles) == 0:
-            raise ValueError('No quantiles were provided.')
 
         # Extract the quantiles.
         quantiles = np.unique(np.array(quantiles))
@@ -155,8 +129,8 @@ class ProbCast():
         )
 
         # Instantiate the optimizers.
-        generator_optimizer = Adam(learning_rate=learning_rate)
-        discriminator_optimizer = Adam(learning_rate=learning_rate)
+        generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+        discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
         # Define the training loop.
         @tf.function
@@ -175,16 +149,16 @@ class ProbCast():
                 )
 
                 # Generate the model predictions.
-                outputs = generator_model([inputs, noise])
-                outputs = tf.reshape(outputs, shape=(data.shape[0], 1, self.targets))
+                predictions = generator_model([inputs, noise])
+                predictions = tf.reshape(predictions, shape=(data.shape[0], 1, self.targets))
 
-                # Pass the actual sequence and the predicted sequence to the discriminator.
-                actual = discriminator_model(tf.concat([inputs, targets], axis=1))
-                predicted = discriminator_model(tf.concat([inputs, outputs], axis=1))
+                # Pass the actual sequences and the predicted sequences to the discriminator.
+                prob_targets = discriminator_model(tf.concat([inputs, targets], axis=1))
+                prob_predictions = discriminator_model(tf.concat([inputs, predictions], axis=1))
 
                 # Calculate the loss.
-                g = generator_loss(targets, outputs)
-                d = discriminator_loss(actual, predicted)
+                g = generator_loss(targets, predictions, prob_predictions)
+                d = discriminator_loss(prob_targets, prob_predictions)
 
                 # Calculate the gradient.
                 dg = generator_tape.gradient(g, generator_model.trainable_variables)
@@ -197,7 +171,7 @@ class ProbCast():
                 return g, d
 
         # Generate the training batches.
-        dataset = timeseries_dataset_from_array(
+        dataset = tf.keras.utils.timeseries_dataset_from_array(
             data=self.y,
             targets=None,
             sequence_length=self.sequence_length + 1,
