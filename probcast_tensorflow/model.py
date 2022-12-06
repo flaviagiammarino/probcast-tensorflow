@@ -160,15 +160,15 @@ class ProbCast():
                 g = generator_loss(targets, predictions, prob_predictions)
                 d = discriminator_loss(prob_targets, prob_predictions)
 
-                # Calculate the gradient.
-                dg = generator_tape.gradient(g, generator_model.trainable_variables)
-                dd = discriminator_tape.gradient(d, discriminator_model.trainable_variables)
+            # Calculate the gradient.
+            dg = generator_tape.gradient(g, generator_model.trainable_variables)
+            dd = discriminator_tape.gradient(d, discriminator_model.trainable_variables)
 
-                # Update the weights.
-                generator_optimizer.apply_gradients(zip(dg, generator_model.trainable_variables))
-                discriminator_optimizer.apply_gradients(zip(dd, discriminator_model.trainable_variables))
+            # Update the weights.
+            generator_optimizer.apply_gradients(zip(dg, generator_model.trainable_variables))
+            discriminator_optimizer.apply_gradients(zip(dd, discriminator_model.trainable_variables))
 
-                return g, d
+            return g, d
 
         # Generate the training batches.
         dataset = tf.keras.utils.timeseries_dataset_from_array(
