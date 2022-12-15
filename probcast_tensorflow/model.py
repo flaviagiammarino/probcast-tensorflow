@@ -5,7 +5,6 @@ pd.options.mode.chained_assignment = None
 
 from probcast_tensorflow.modules import generator, discriminator
 from probcast_tensorflow.losses import generator_loss, discriminator_loss
-from probcast_tensorflow.plots import plot
 
 class ProbCast():
 
@@ -25,7 +24,6 @@ class ProbCast():
         Implementation of multivariate time series forecasting model introduced in Koochali, A., Dengel, A.,
         & Ahmed, S. (2021). If You Like It, GAN It — Probabilistic Multivariate Times Series Forecast with GAN.
         In Engineering Proceedings (Vol. 5, No. 1, p. 40). Multidisciplinary Digital Publishing Institute.
-        https://doi.org/10.3390/engproc2021005040
 
         Parameters:
         __________________________________
@@ -188,145 +186,60 @@ class ProbCast():
         # Save the model.
         self.model = generator_model
 
-    def predict(self, index, simulations=100):
+    def forecast(self, y, samples=100):
 
         '''
-        Generate the in-sample predictions.
+        Generate the forecasts.
 
         Parameters:
         __________________________________
-        index: int.
-            The start index of the sequence to predict.
-
-        simulations: int.
+        y: np.array.
+            Past values of the time series.
+            
+        samples: int.
             The number of samples to generate for estimating the quantiles.
 
         Returns:
         __________________________________
-        predictions: pd.DataFrame.
+        df: pd.DataFrame.
             Data frame including the actual values of the time series and the predicted quantiles.
         '''
 
-        if index < self.sequence_length:
-            raise ValueError('The index must be greater than {}.'.format(self.sequence_length))
-
-        elif index > len(self.y) - self.forecast_length:
-            raise ValueError('The index must be less than {}.'.format(self.samples - self.forecast_length))
-
-        # Generate the predictions for the selected sequence.
-        outputs = np.zeros(shape=(simulations, self.forecast_length, self.targets))
-
-        noise = np.random.normal(
-            loc=0.0,
-            scale=self.noise_dispersion,
-            size=(simulations, self.forecast_length, self.noise_dimension)
-        )
-
-        for i in range(index, index + self.forecast_length):
-            inputs = self.y[i - self.sequence_length: i, :]
-            inputs = inputs.reshape(1, self.sequence_length, self.targets)
-            inputs = np.repeat(inputs, simulations, axis=0)
-            outputs[:, i - index, :] = self.model([inputs, noise[:, i - index, :]]).numpy()
-
-        # Organize the predictions in a data frame.
-        columns = ['time_idx']
-        columns.extend(['target_' + str(i + 1) for i in range(self.targets)])
-        columns.extend(['target_' + str(i + 1) + '_' + str(self.quantiles[j]) for i in range(self.targets) for j in range(len(self.quantiles))])
-
-        predictions = pd.DataFrame(columns=columns)
-        predictions['time_idx'] = np.arange(self.samples)
-
-        for i in range(self.targets):
-            predictions['target_' + str(i + 1)] = self.mu[i] + self.sigma[i] * self.y[:, i]
-
-            for j in range(len(self.quantiles)):
-                predictions['target_' + str(i + 1) + '_' + str(self.quantiles[j])].iloc[index: index + self.forecast_length] = \
-                    self.mu[i] + self.sigma[i] * np.quantile(outputs[:, :, i], q=self.quantiles[j], axis=0)
-
-        predictions = predictions.astype(float)
-
-        # Save the data frame.
-        self.predictions = predictions
-
-        # Return the data frame.
-        return predictions
-
-    def forecast(self, simulations=100):
-
-        '''
-        Generate the out-of-sample forecasts.
-
-        Parameters:
-        __________________________________
-        simulations: int.
-            The number of samples to generate for estimating the quantiles.
-
-        Returns:
-        __________________________________
-        forecasts: pd.DataFrame.
-            Data frame including the actual values of the time series and the predicted quantiles.
-        '''
-
+        # Scale the targets.
+        y = (y - self.mu) / self.sigma
+        
         # Generate the forecasts.
-        outputs = np.zeros(shape=(simulations, self.forecast_length, self.targets))
+        outputs = np.zeros(shape=(samples, self.forecast_length, self.targets))
 
         noise = np.random.normal(
             loc=0.0,
             scale=self.noise_dispersion,
-            size=(simulations, self.forecast_length, self.noise_dimension)
+            size=(samples, self.forecast_length, self.noise_dimension)
         )
 
-        inputs = self.y[- self.sequence_length:, :]
+        inputs = y[- self.sequence_length:, :]
         inputs = inputs.reshape(1, self.sequence_length, self.targets)
-        inputs = np.repeat(inputs, simulations, axis=0)
+        inputs = np.repeat(inputs, samples, axis=0)
 
         for i in range(self.forecast_length):
             outputs[:, i, :] = self.model([inputs, noise[:, i, :]]).numpy()
-            inputs = np.append(inputs[:, 1:, :], outputs[:, i, :].reshape(simulations, 1, self.targets), axis=1)
+            inputs = np.append(inputs[:, 1:, :], outputs[:, i, :].reshape(samples, 1, self.targets), axis=1)
 
         # Organize the forecasts in a data frame.
         columns = ['time_idx']
         columns.extend(['target_' + str(i + 1) for i in range(self.targets)])
         columns.extend(['target_' + str(i + 1) + '_' + str(self.quantiles[j]) for i in range(self.targets) for j in range(len(self.quantiles))])
 
-        forecasts = pd.DataFrame(columns=columns)
-        forecasts['time_idx'] = np.arange(self.samples + self.forecast_length)
+        df = pd.DataFrame(columns=columns)
+        df['time_idx'] = np.arange(self.samples + self.forecast_length)
 
         for i in range(self.targets):
-            forecasts['target_' + str(i + 1)].iloc[: - self.forecast_length] = self.mu[i] + self.sigma[i] * self.y[:, i]
+            df['target_' + str(i + 1)].iloc[: - self.forecast_length] = self.mu[i] + self.sigma[i] * self.y[:, i]
 
             for j in range(len(self.quantiles)):
-                forecasts['target_' + str(i + 1) + '_' + str(self.quantiles[j])].iloc[- self.forecast_length:] = \
+                df['target_' + str(i + 1) + '_' + str(self.quantiles[j])].iloc[- self.forecast_length:] = \
                     self.mu[i] + self.sigma[i] * np.quantile(outputs[:, :, i], q=self.quantiles[j], axis=0)
 
-        forecasts = forecasts.astype(float)
-
-        # Save the data frame.
-        self.forecasts = forecasts
-
         # Return the data frame.
-        return forecasts
+        return df.astype(float)
 
-    def plot_predictions(self):
-
-        '''
-        Plot the in-sample predictions.
-
-        Returns:
-        __________________________________
-        go.Figure.
-        '''
-
-        return plot(self.predictions, self.quantiles, self.targets)
-
-    def plot_forecasts(self):
-
-        '''
-        Plot the out-of-sample forecasts.
-
-        Returns:
-        __________________________________
-        go.Figure.
-        '''
-
-        return plot(self.forecasts, self.quantiles, self.targets)

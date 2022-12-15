@@ -1,23 +1,26 @@
 import numpy as np
-from probcast_tensorflow.model import ProbCast
 
-# Generate two time series
-N = 200
+from probcast_tensorflow.model import ProbCast
+from probcast_tensorflow.plots import plot
+
+# Generate some time series
+N = 250
 t = np.linspace(0, 1, N)
-e = np.random.multivariate_normal(mean=np.zeros(2), cov=np.eye(2), size=N)
-a = 10 * np.cos(2 * np.pi * (10 * t - 0.5)) + 0.1 * e[:, 0]
-b = 20 * np.cos(2 * np.pi * (20 * t - 0.5)) + 0.2 * e[:, 1]
-y = np.hstack([a.reshape(- 1, 1), b.reshape(- 1, 1)])
+e = np.random.multivariate_normal(mean=np.zeros(3), cov=np.eye(3), size=N)
+a = 10 + 10 * t + 10 * np.cos(2 * np.pi * (10 * t - 0.5)) + 1 * e[:, 0]
+b = 20 + 20 * t + 20 * np.cos(2 * np.pi * (20 * t - 0.5)) + 2 * e[:, 1]
+c = 30 + 30 * t + 30 * np.cos(2 * np.pi * (30 * t - 0.5)) + 3 * e[:, 2]
+y = np.hstack([a.reshape(-1, 1), b.reshape(-1, 1), c.reshape(-1, 1)])
 
 # Fit the model
 model = ProbCast(
     y=y,
-    forecast_length=20,
-    sequence_length=40,
-    quantiles=[0.05, 0.25, 0.5, 0.75, 0.95],
-    generator_gru_units=[32, 16],
-    discriminator_gru_units=[32, 16],
-    generator_dense_units=8,
+    forecast_length=25,
+    sequence_length=50,
+    quantiles=[0.001, 0.1, 0.5, 0.9, 0.999],
+    generator_gru_units=[64],
+    discriminator_gru_units=[32],
+    generator_dense_units=16,
     discriminator_dense_units=8,
     noise_dimension=100,
     noise_dispersion=10,
@@ -25,17 +28,14 @@ model = ProbCast(
 
 model.fit(
     learning_rate=0.001,
-    batch_size=32,
-    epochs=100,
+    batch_size=16,
+    epochs=200,
     verbose=True
 )
 
-# Plot the in-sample predictions
-predictions = model.predict(index=180)
-fig = model.plot_predictions()
-fig.write_image('predictions.png', width=750, height=650)
+# Generate the forecasts
+df = model.forecast(y=y)
 
-# Plot the out-of-sample forecasts
-forecasts = model.forecast()
-fig = model.plot_forecasts()
-fig.write_image('forecasts.png', width=750, height=650)
+# Plot the forecasts
+fig = plot(df=df, quantiles=[0.001, 0.1, 0.5, 0.9, 0.999])
+fig.write_image('results.png', scale=4, height=900, width=700)
