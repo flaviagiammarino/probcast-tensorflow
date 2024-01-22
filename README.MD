@@ -2,10 +2,16 @@
 
 ![license](https://img.shields.io/github/license/flaviagiammarino/probcast-tensorflow)
 ![languages](https://img.shields.io/github/languages/top/flaviagiammarino/probcast-tensorflow)
+![stars](https://img.shields.io/github/stars/flaviagiammarino/probcast-tensorflow)
+![forks](https://img.shields.io/github/forks/flaviagiammarino/probcast-tensorflow)
 
 TensorFlow implementation of multivariate time series forecasting model introduced in Koochali, A., Dengel, A.,
 and Ahmed, S. (2021). If You Like It, GAN It — Probabilistic Multivariate Times Series Forecast with GAN.
 In *Engineering Proceedings* (Vol. 5, No. 1, p. 40). Multidisciplinary Digital Publishing Institute.
+
+<img src=diagram.png style="width:60%;margin-top:30px;margin-bottom:25px"/>
+
+*Model architecture (source: [doi: 10.3390/engproc2021005040](https://doi.org/10.3390/engproc2021005040))*
 
 ## Dependencies
 ```bash
